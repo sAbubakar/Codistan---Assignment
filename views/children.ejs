@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Transaction Data</title>
+        <style>
+            table {
+              width: 100%;
+              border-collapse: collapse;
+            }
+        
+            th, td {
+              padding: 8px;
+              text-align: left;
+              border-bottom: 1px solid #ddd;
+            }
+          </style>
+    </head>
+    <body>
+        <h1><center>Transaction Data</center></h1>
+        <div>
+            <table>
+                <thead>
+                    <th><center>ID</center></th>
+                    <th><center>Receiver</center></th>
+                    <th><center>Sender</center></th>
+                    <th><center>Total Amount</center></th>
+                    <th><center>Amount Paid</center></th>
+                </thead>
+                <tbody id="child">
+                </tbody>
+            </table>
+        </div>
+
+
+        <script>
+            const parent = '<%= PID %>';
+            fetch(`/api/transactions/${parent}/children`)
+            .then(response=>response.json())
+            .then(data=>{
+                //console.log(data);
+                const child=document.getElementById(`child`);
+                for(let i=0; i<data.length; i++){
+                    let newChild=document.createElement('tr');
+                    newChild.innerHTML=`
+                            <td><center>${data[i].id}</center></td>
+                            <td><center>${data[i].receiver}</center></td>
+                            <td><center>${data[i].sender}</center></td>
+                            <td><center>${data[i].totalAmount}</center></td>
+                           <td><center>${data[i].paidAmount}</center></td>
+                        `;
+                    child.appendChild(newChild);
+                }
+            })
+            .catch(err=>{
+                console.log("error");
+            });
+        </script>
+    </body>
+    
+</html>

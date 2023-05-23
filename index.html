@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Transaction Data</title>
+  <style>
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 8px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .pagination {
+      display: flex;
+      justify-content: center;
+      margin-top: 16px;
+    }
+
+    .pagination a {
+      padding: 8px 12px;
+      text-decoration: none;
+      background-color: #f1f1f1;
+      color: black;
+      margin: 0 4px;
+      border-radius: 4px;
+    }
+
+    .pagination a.active {
+      background-color: #4CAF50;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <h1><center>Transaction Data</center></h1>
+
+  <table id="transactionTable">
+    <thead>
+      <tr>
+        <th><center>ID</center></th>
+        <th><center>Sender</center></th>
+        <th><center>Receiver</center></th>
+        <th><center>Total Amount</center></th>
+        <th><center>Total Paid Amount</center></th>
+      </tr>
+    </thead>
+    <tbody id = 'parent'>
+    </tbody>
+  </table>
+
+  <div class="pagination"></div>
+
+  <script>
+    const tableBody = document.querySelector('#transactionTable tbody');
+    const paginationContainer = document.querySelector('.pagination');
+
+    // Function to fetch data from the API and render the table
+    async function fetchData(page) {
+  try {
+    const response = await fetch(`/api/transactions?page=${page}`);
+    const data = await response.json();
+    const transactions = data.transactions;
+
+    // Clear table body
+    tableBody.innerHTML = '';
+
+    // Render table rows
+    transactions.forEach(transaction => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td><center>${transaction.id}</center></td>
+        <td><center>${transaction.sender}</center></td>
+        <td><center>${transaction.receiver}</center></td>
+        <td><center>${transaction.totalAmount}</center></td>
+        <td><a href="/child/${transaction.id}"><center>${transaction.totalPaidAmount}</center></a></td>
+      `; 
+      tableBody.appendChild(row);
+    });
+
+    // Render pagination links
+    paginationContainer.innerHTML = '';
+    for (let i = 1; i <= data.totalPages; i++) {
+      const link = document.createElement('a');
+      link.textContent = i;
+      if (i === data.page) {
+        link.classList.add('active');
+      }
+      link.addEventListener('click', () => fetchData(i));
+      paginationContainer.appendChild(link);
+    }
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}
+
+// Initial data fetch for page 1
+fetchData(1);
+  </script>
+</body>
+</html>
